@@ -1,10 +1,17 @@
 package com.kuni.studentmanagement.entity;
 
 import com.kuni.studentmanagement.enumeration.EnrollingStatusEnum;
+import lombok.*;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name = "enrolling_student")
 public class EnrollingStudent {
     @Id
@@ -15,7 +22,7 @@ public class EnrollingStudent {
     private String fullName;
 
     @Column(name = "student_dob", nullable = false)
-    private String studentDob;
+    private Timestamp studentDob;
 
     @Column(name = "identity_number", nullable = false)
     private String identityNumber;

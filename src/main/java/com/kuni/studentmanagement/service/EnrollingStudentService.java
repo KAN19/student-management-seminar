@@ -5,4 +5,8 @@ import com.kuni.studentmanagement.dto.response.StudentResponse;
 
 public interface EnrollingStudentService {
     StudentResponse createEnrollingStudent(CreateEnrollingStudentRequest request);
+
+    StudentResponse getListEnrolling();
+
+    StudentResponse changeEnrollingStatus(Long id, String status);
 }
