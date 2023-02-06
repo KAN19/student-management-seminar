@@ -1,0 +1,7 @@
+version: '2'
+services:
+  app:
+    container_name: crud-department
+    image: kan19/student-management-seminar:latest
+    ports:
+      - 8088:8080
