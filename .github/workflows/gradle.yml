@@ -13,9 +13,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-permissions:
-  contents: read
-
 jobs:
   build:
 
@@ -28,19 +25,21 @@ jobs:
       with:
         java-version: '11'
         distribution: 'temurin'
-    - name: Build with Gradle
-      uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-      with:
-        arguments: clean build
 
-    - uses: actions/checkout@v2
-      name: Check out code
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
 
-    - name: Build and Push Docker Image
-      uses: mr-smithers-excellent/docker-build-push@v5
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
       with:
-        image: kan19/student-management-seminar
-        tags: latest
-        registry: docker.io
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v4
+      with:
+        push: true
+        tags: kan19/student-management-seminar:latest
