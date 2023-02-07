@@ -9,4 +9,6 @@ public interface EnrollingStudentService {
     StudentResponse getListEnrolling();
 
     StudentResponse changeEnrollingStatus(Long id, String status);
+
+    StudentResponse getEnrollingStudentById(Long id);
 }

@@ -7,10 +7,23 @@ spring:
   # JPA properties
   jpa:
     hibernate:
-      ddl-auto: create-drop # When you launch the application for the first time - switch "none" at "create"
+      ddl-auto: update # When you launch the application for the first time - switch "none" at "create"
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
+
+  mail:
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: 'true'
+            required: 'true'
+          auth: 'true'
+    host: smtp.gmail.com
+    username: edu.nguyenkiet0807@gmail.com
+    password: phurpgnzlnpvkrsh
+    port: '587'
 
 server:
   port: 8080

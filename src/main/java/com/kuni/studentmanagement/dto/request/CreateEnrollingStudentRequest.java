@@ -25,4 +25,6 @@ public class CreateEnrollingStudentRequest {
     private String highSchoolCert;
 
     private String highSchoolResult;
+
+    private String email;
 }

@@ -5,15 +5,15 @@ import com.kuni.studentmanagement.dto.response.StudentResponse;
 import com.kuni.studentmanagement.entity.EnrollingStudent;
 import com.kuni.studentmanagement.entity.Student;
 import com.kuni.studentmanagement.enumeration.EnrollingStatusEnum;
-import com.kuni.studentmanagement.helper.DateTimeConverter;
+import com.kuni.studentmanagement.mail.MailService;
 import com.kuni.studentmanagement.repository.EnrollingStudentRepository;
 import com.kuni.studentmanagement.repository.StudentRepository;
 import com.kuni.studentmanagement.service.EnrollingStudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EnrollingStudentServiceImpl implements EnrollingStudentService {
@@ -22,10 +22,13 @@ public class EnrollingStudentServiceImpl implements EnrollingStudentService {
 
     private final StudentRepository studentRepository;
 
+    private final MailService mailService;
+
     @Autowired
-    public EnrollingStudentServiceImpl(EnrollingStudentRepository enrollingStudentRepository, StudentRepository studentRepository) {
+    public EnrollingStudentServiceImpl(EnrollingStudentRepository enrollingStudentRepository, StudentRepository studentRepository, MailService mailService) {
         this.enrollingStudentRepository = enrollingStudentRepository;
         this.studentRepository = studentRepository;
+        this.mailService = mailService;
     }
 
     @Override
@@ -39,6 +42,7 @@ public class EnrollingStudentServiceImpl implements EnrollingStudentService {
                 .major(request.getMajor())
                 .startingSeason(request.getStartingSeason())
                 .studentDob(request.getStudentDob())
+                .email(request.getEmail())
                 .build();
         EnrollingStudent save = enrollingStudentRepository.save(enrollingStudent);
         return new StudentResponse(save, "Create enrolling student successfully!");
@@ -64,19 +68,29 @@ public class EnrollingStudentServiceImpl implements EnrollingStudentService {
         EnrollingStudent save = enrollingStudentRepository.save(enrollingStudent);
 
         if (enrollingStatusEnum == EnrollingStatusEnum.APPROVED) {
-            studentRepository.findByIdentityNumber(enrollingStudent.getIdentityNumber()).ifPresent(student -> {
-                throw new RuntimeException("Student already exists!");
-            });
-            Student student = Student.builder()
-                    .fullName(enrollingStudent.getFullName())
-                    .identityNumber(enrollingStudent.getIdentityNumber())
-                    .studentDob(enrollingStudent.getStudentDob())
-                    .major(enrollingStudent.getMajor())
-                    .startingSeason(enrollingStudent.getStartingSeason())
-                    .build();
-            studentRepository.save(student);
+            Optional<Student> existedStudent = studentRepository.findByIdentityNumber(enrollingStudent.getIdentityNumber());
+            if (existedStudent.isEmpty()) {
+                Student student = Student.builder()
+                        .fullName(enrollingStudent.getFullName())
+                        .identityNumber(enrollingStudent.getIdentityNumber())
+                        .studentDob(enrollingStudent.getStudentDob())
+                        .major(enrollingStudent.getMajor())
+                        .startingSeason(enrollingStudent.getStartingSeason())
+                        .build();
+                studentRepository.save(student);
+            }
+            mailService.sendEmail(enrollingStudent.getEmail(), "K-Uni Enrolling Status", "Your enrolling status is approved!");
         }
+        //Todo: send email reject
 
         return new StudentResponse(save, "Change enrolling status successfully!");
+    }
+
+    @Override
+    public StudentResponse getEnrollingStudentById(Long id) {
+        EnrollingStudent enrollingStudent = enrollingStudentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Enrolling student not found!"));
+
+        return new StudentResponse(enrollingStudent, "Get enrolling student by id successfully!");
     }
 }

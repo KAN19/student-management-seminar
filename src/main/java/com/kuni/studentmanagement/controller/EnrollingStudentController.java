@@ -2,6 +2,7 @@ package com.kuni.studentmanagement.controller;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kuni.studentmanagement.dto.request.CreateEnrollingStudentRequest;
+import com.kuni.studentmanagement.dto.request.UpdateStatusRequest;
 import com.kuni.studentmanagement.dto.response.BaseResponse;
 import com.kuni.studentmanagement.dto.response.StudentResponse;
 import com.kuni.studentmanagement.service.EnrollingStudentService;
@@ -46,17 +47,25 @@ public class EnrollingStudentController {
         }
     }
 
-    @PutMapping("/update-status/{id}")
-    public ResponseEntity<?> changeEnrollingStatus(@RequestBody ObjectNode objectNode, @PathVariable("id") Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getEnrollingStudentById(@PathVariable("id") Long id) {
         try {
-            String status = objectNode.get("status").asText();
-            return ResponseEntity.ok().body(enrollingStudentService.changeEnrollingStatus(id, status));
+            return ResponseEntity.ok().body(enrollingStudentService.getEnrollingStudentById(id));
+        } catch (Exception exception) {
+            LOGGER.error("Failed to get enrolling student by id!");
+            StudentResponse response = new StudentResponse(exception.getMessage(), HttpStatus.BAD_REQUEST.value());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PutMapping("/update-status/{id}")
+    public ResponseEntity<?> changeEnrollingStatus(@RequestBody UpdateStatusRequest request, @PathVariable("id") Long id) {
+        try {
+            return ResponseEntity.ok().body(enrollingStudentService.changeEnrollingStatus(id, request.getStatus()));
         } catch (Exception exception) {
             LOGGER.error("Failed to get list enrolling students!");
             StudentResponse response = new StudentResponse(exception.getMessage(), HttpStatus.BAD_REQUEST.value());
             return ResponseEntity.badRequest().body(response);
         }
     }
-
-
 }

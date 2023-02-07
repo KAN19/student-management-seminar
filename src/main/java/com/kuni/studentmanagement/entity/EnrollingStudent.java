@@ -21,6 +21,9 @@ public class EnrollingStudent {
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
+    @Column(name = "email", nullable = false)
+    private String email;
+
     @Column(name = "student_dob", nullable = false)
     private Timestamp studentDob;
 
