@@ -81,7 +81,9 @@ public class EnrollingStudentServiceImpl implements EnrollingStudentService {
             }
             mailService.sendEmail(enrollingStudent.getEmail(), "K-Uni Enrolling Status", "Your enrolling status is approved!");
         }
-        //Todo: send email reject
+
+        if (enrollingStatusEnum == EnrollingStatusEnum.REJECTED)
+            mailService.sendEmail(enrollingStudent.getEmail(), "K-Uni Enrolling Status", "Your enrolling status is rejected!");
 
         return new StudentResponse(save, "Change enrolling status successfully!");
     }

@@ -26,27 +26,20 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
 
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
     - name: Build with Gradle
-      uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-      with:
-        arguments: clean build
+      run: ./gradlew clean build
 
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
+    - name: Docker login
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+      run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD" docker.io
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-      with:
-        version: v0.7.0
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag kan19/student-management-seminar:latest
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-    - name: Build and push
-      uses: docker/build-push-action@v4
-      with:
-        push: true
-        tags: kan19/student-management-seminar:latest
+    - name: Publish docker image to docker hub
+      run: docker push kan19/student-management-seminar
